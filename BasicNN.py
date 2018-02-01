@@ -89,7 +89,7 @@ bb_model.add(Conv2D(128, (3, 3), activation='linear',padding='same'))
 bb_model.add(LeakyReLU(alpha=0.1))                  
 bb_model.add(MaxPooling2D(pool_size=(2, 2),padding='same'))
 bb_model.add(Dropout(0.4))
-#Dense layer
+#Hidden layer
 bb_model.add(Flatten())
 bb_model.add(Dense(128, activation='linear'))
 bb_model.add(LeakyReLU(alpha=0.1))        
@@ -98,6 +98,30 @@ bb_model.add(Dropout(0.3))
 bb_model.add(Dense(num_classes, activation='softmax'))        
 
 #############################################################################################################################
+
+#####################################Visualise the model########################################################
+
+#Data
+bb_batch = train_X[20444,:,:,:]
+
+#Plot function
+def obj_prnt(model,obj):
+    obj=np.expand_dims(obj,axis=0)
+    conv_obj = model.predict(obj)
+    conv_obj2 = np.squeeze(obj,axis=0)
+    
+    print(conv_obj2.shape)
+    
+    conv_obj2=conv_obj2.reshape(conv_obj2.shape[:2])
+    
+    print(conv_obj2.shape)
+    
+    plt.imshow(conv_obj2)
+
+#Visualize
+obj_prnt(bb_model,bb_batch)
+
+########################################################################
 
 #Compile the model
 
@@ -135,7 +159,7 @@ plt.legend()
 plt.show()
 
 #Save the modelfor future
-bb_model.save("bb_model.h5py")
+bb_model.save("/media/aakanksha/f41d5ac2-703c-4b56-a960-cd3a54f21cfb/aakanksha/Documents/Backup/Phd/Analysis/blackbuckML/CNN/bb_model.h5py")
 # save the model to disk
 import pickle
 filename = 'bb_model.sav'
@@ -146,8 +170,8 @@ pickle.dump(bb_model, open(filename, 'wb'))
 cl0 = '/media/aakanksha/f41d5ac2-703c-4b56-a960-cd3a54f21cfb/aakanksha/Documents/Backup/Phd/Analysis/blackbuckML/test/no/'
 cl1 = '/media/aakanksha/f41d5ac2-703c-4b56-a960-cd3a54f21cfb/aakanksha/Documents/Backup/Phd/Analysis/blackbuckML/test/yes/'
 
-ls0 = [name for name in os.listdir(cls0) if not name.startswith('.')] 
-ls1 = [name for name in os.listdir(cls1) if not name.startswith('.')]
+ls0 = [name for name in os.listdir(cl0) if not name.startswith('.')] 
+ls1 = [name for name in os.listdir(cl1) if not name.startswith('.')]
 ls=[]
 ls.extend(ls0)
 ls.extend(ls1)
@@ -165,21 +189,21 @@ for i in range(testX.shape[0]):
        testX[i-1,:,:]=cv2.resize(cv2.imread(cl1+ls[i],cv2.IMREAD_GRAYSCALE),(40,40))  
        
 # Change the labels from categorical to one-hot encoding
-testY = to_categorical(testY)
+testY_h = to_categorical(testY)
 
 testX = testX.reshape(-1, 40,40, 1)
 testX = testX.astype('float32')
 testX = testX / 255.  
 
 #Load model
-
-
+from keras.models import load_model
+bb_model = load_model("/media/aakanksha/f41d5ac2-703c-4b56-a960-cd3a54f21cfb/aakanksha/Documents/Backup/Phd/Analysis/blackbuckML/CNN/bb_model.h5py")
 
 #Evaluation on test set
 
 
 
-test_eval = bb_model.evaluate(testX, testY, verbose=1)
+test_eval = bb_model.evaluate(testX, testY_h, verbose=1)
 print('Test loss:', test_eval[0])
 print('Test accuracy:', test_eval[1])
 
