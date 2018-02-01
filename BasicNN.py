@@ -108,6 +108,8 @@ bb_model.summary()
 #Training
 
 bb_train = bb_model.fit(train_X, train_label, batch_size=batch_size,epochs=epochs,verbose=1,validation_data=(valid_X, valid_label))
+#Epoch 25/25
+#17180/17180 [==============================] - 140s 8ms/step - loss: 0.0456 - acc: 0.9867 - val_loss: 0.0869 - val_acc: 0.9804
 
 #Model evaluation on test set
 #test_eval = bb_model.evaluate(test_X, test_Y_one_hot, verbose=0)
@@ -134,3 +136,59 @@ plt.show()
 
 #Save the modelfor future
 bb_model.save("bb_model.h5py")
+# save the model to disk
+import pickle
+filename = 'bb_model.sav'
+pickle.dump(bb_model, open(filename, 'wb'))
+
+#Load test data
+
+cl0 = '/media/aakanksha/f41d5ac2-703c-4b56-a960-cd3a54f21cfb/aakanksha/Documents/Backup/Phd/Analysis/blackbuckML/test/no/'
+cl1 = '/media/aakanksha/f41d5ac2-703c-4b56-a960-cd3a54f21cfb/aakanksha/Documents/Backup/Phd/Analysis/blackbuckML/test/yes/'
+
+ls0 = [name for name in os.listdir(cls0) if not name.startswith('.')] 
+ls1 = [name for name in os.listdir(cls1) if not name.startswith('.')]
+ls=[]
+ls.extend(ls0)
+ls.extend(ls1)
+#Create image dataset
+testX = np.ndarray(shape=(len(ls),40,40), dtype='uint8', order='C')
+testY = np.hstack((np.zeros(len(ls0)),np.ones(len(ls1))))
+#extract image data and append to matrix
+i=0
+for i in range(testX.shape[0]):
+
+    #print(i)
+    if(i<len(ls0)):
+      testX[i-1,:,:]=cv2.resize(cv2.imread(cl0+ls[i],cv2.IMREAD_GRAYSCALE),(40,40))
+    else:
+       testX[i-1,:,:]=cv2.resize(cv2.imread(cl1+ls[i],cv2.IMREAD_GRAYSCALE),(40,40))  
+       
+# Change the labels from categorical to one-hot encoding
+testY = to_categorical(testY)
+
+testX = testX.reshape(-1, 40,40, 1)
+testX = testX.astype('float32')
+testX = testX / 255.  
+
+#Load model
+
+
+
+#Evaluation on test set
+
+
+
+test_eval = bb_model.evaluate(testX, testY, verbose=1)
+print('Test loss:', test_eval[0])
+print('Test accuracy:', test_eval[1])
+
+#Predict labels and test predictions
+predicted_classes = bb_model.predict(testX)
+predicted_classes = np.argmax(np.round(predicted_classes),axis=1)
+
+correct = np.where(predicted_classes==testY)[0]
+print( "Found %d correct labels" % len(correct))
+incorrect = np.where(predicted_classes!=testY)[0]
+print ("Found %d incorrect labels" % len(incorrect))
+
