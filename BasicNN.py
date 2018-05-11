@@ -69,10 +69,11 @@ from keras.layers.advanced_activations import LeakyReLU
 #use a batch size of 64 using a higher batch size of 128 or 256 is also preferable it all depends on the memory. It contributes massively to determining the learning parameters and affects the prediction accuracy. You will train the network for 20 epochs.
 
 batch_size = 64
-epochs = 25
+epochs = 10
 num_classes = 2
 
 ##################################################Model####################################################################
+
 #First layer
 bb_model = Sequential()
 bb_model.add(Conv2D(32, kernel_size=(3, 3),activation='linear',input_shape=(40,40,1),padding='same'))
@@ -84,42 +85,58 @@ bb_model.add(Conv2D(64, (3, 3), activation='linear',padding='same'))
 bb_model.add(LeakyReLU(alpha=0.1))
 bb_model.add(MaxPooling2D(pool_size=(2, 2),padding='same'))
 bb_model.add(Dropout(0.25))
+
+bb_model.add(Conv2D(64, (3, 3), activation='linear',padding='same'))
+bb_model.add(LeakyReLU(alpha=0.1))
+bb_model.add(MaxPooling2D(pool_size=(2, 2),padding='same'))
+bb_model.add(Dropout(0.25))
 #Third layer
 bb_model.add(Conv2D(128, (3, 3), activation='linear',padding='same'))
 bb_model.add(LeakyReLU(alpha=0.1))                  
 bb_model.add(MaxPooling2D(pool_size=(2, 2),padding='same'))
 bb_model.add(Dropout(0.4))
-#Hidden layer
+
+bb_model.add(Conv2D(128, (3, 3), activation='linear',padding='same'))
+bb_model.add(LeakyReLU(alpha=0.1))                  
+bb_model.add(MaxPooling2D(pool_size=(2, 2),padding='same'))
+bb_model.add(Dropout(0.4))
+#Dense layer
 bb_model.add(Flatten())
 bb_model.add(Dense(128, activation='linear'))
 bb_model.add(LeakyReLU(alpha=0.1))        
 bb_model.add(Dropout(0.3))
+
+
+bb_model.add(Dense(256, activation='linear'))
+bb_model.add(LeakyReLU(alpha=0.1))        
+bb_model.add(Dropout(0.3))
 #Output          
-bb_model.add(Dense(num_classes, activation='softmax'))        
+bb_model.add(Dense(num_classes, activation='softmax'))    
+       
 
 #############################################################################################################################
 
 #####################################Visualise the model########################################################
 
 #Data
-bb_batch = train_X[20444,:,:,:]
-
-#Plot function
-def obj_prnt(model,obj):
-    obj=np.expand_dims(obj,axis=0)
-    conv_obj = model.predict(obj)
-    conv_obj2 = np.squeeze(obj,axis=0)
-    
-    print(conv_obj2.shape)
-    
-    conv_obj2=conv_obj2.reshape(conv_obj2.shape[:2])
-    
-    print(conv_obj2.shape)
-    
-    plt.imshow(conv_obj2)
-
-#Visualize
-obj_prnt(bb_model,bb_batch)
+#bb_batch = train_X[6,:,:,:]
+#
+##Plot function
+#def obj_prnt(model,obj):
+#    obj=np.expand_dims(obj,axis=0)
+#    conv_obj = model.predict(obj)
+#    conv_obj2 = np.squeeze(obj,axis=0)
+#    
+#    print(conv_obj2.shape)
+#    
+#    conv_obj2=conv_obj2.reshape(conv_obj2.shape[:2])
+#    
+#    print(conv_obj2.shape)
+#    
+#    plt.imshow(conv_obj2)
+#
+##Visualize
+#obj_prnt(bb_model,bb_batch)
 
 ########################################################################
 
@@ -139,8 +156,6 @@ bb_train = bb_model.fit(train_X, train_label, batch_size=batch_size,epochs=epoch
 #test_eval = bb_model.evaluate(test_X, test_Y_one_hot, verbose=0)
 #print('Test loss:', test_eval[0])
 #print('Test accuracy:', test_eval[1])
-
-
 #Check for over-fitting by plotting training and validation-loss and accuracy
 accuracy =bb_train.history['acc']
 val_accuracy = bb_train.history['val_acc']
@@ -161,9 +176,9 @@ plt.show()
 #Save the modelfor future
 bb_model.save("/media/aakanksha/f41d5ac2-703c-4b56-a960-cd3a54f21cfb/aakanksha/Documents/Backup/Phd/Analysis/blackbuckML/CNN/bb_model.h5py")
 # save the model to disk
-import pickle
-filename = 'bb_model.sav'
-pickle.dump(bb_model, open(filename, 'wb'))
+#import pickle
+#filename = 'bb_model.sav'
+#pickle.dump(bb_model, open(filename, 'wb'))
 
 #Load test data
 
@@ -196,8 +211,8 @@ testX = testX.astype('float32')
 testX = testX / 255.  
 
 #Load model
-from keras.models import load_model
-bb_model = load_model("/media/aakanksha/f41d5ac2-703c-4b56-a960-cd3a54f21cfb/aakanksha/Documents/Backup/Phd/Analysis/blackbuckML/CNN/bb_model.h5py")
+#from keras.models import load_model
+#bb_model = load_model("/media/aakanksha/f41d5ac2-703c-4b56-a960-cd3a54f21cfb/aakanksha/Documents/Backup/Phd/Analysis/blackbuckML/CNN/bb_model.h5py")
 
 #Evaluation on test set
 
