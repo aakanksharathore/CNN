@@ -70,14 +70,19 @@ from keras.layers.advanced_activations import LeakyReLU
 #use a batch size of 64 using a higher batch size of 128 or 256 is also preferable it all depends on the memory. It contributes massively to determining the learning parameters and affects the prediction accuracy. You will train the network for 20 epochs.
 
 batch_size = 64
-epochs = 25
+epochs = 30
 num_classes = 2
 
 ##################################################Model####################################################################
 
 
 bb_model = Sequential()
-bb_model.add(Conv2D(64, kernel_size=(3, 3),activation='linear',input_shape=(40,40,3),padding='same'))
+
+bb_model.add(Conv2D(32, kernel_size=(3, 3),activation='linear',input_shape=(40,40,3),padding='same'))
+bb_model.add(LeakyReLU(alpha=0.1))
+bb_model.add(MaxPooling2D((2, 2),padding='same'))
+
+bb_model.add(Conv2D(64, kernel_size=(3, 3),activation='linear',padding='same'))
 bb_model.add(LeakyReLU(alpha=0.1))
 bb_model.add(MaxPooling2D((2, 2),padding='same'))
 #Second layer
@@ -97,11 +102,10 @@ bb_model.add(Dropout(0.3))
 
 bb_model.add(Dense(128, activation='linear'))
 bb_model.add(LeakyReLU(alpha=0.1))        
-bb_model.add(Dropout(0.3))
-
+bb_model.add(Dropout(0.3)) 
 
 #Output          
-bb_model.add(Dense(num_classes, activation='softmax'))    
+bb_model.add(Dense(num_classes, activation='softmax')) 
        
 
 #############################################################################################################################

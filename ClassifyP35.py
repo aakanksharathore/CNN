@@ -34,15 +34,15 @@ df = pd.DataFrame(columns=['c_id','x_px','y_px','frame'])
 
 i=0
 row = 0
-steps=500
+steps=60
 alt = int(input("Enter height of video(integer):  "))             
 # work out size of box if box if 32x32 at 100m
 grabSize = int(m.ceil((100/alt)*12))
 #Load model
 from keras.models import load_model
-bb_model = load_model("/media/aakanksha/f41d5ac2-703c-4b56-a960-cd3a54f21cfb/aakanksha/Documents/Backup/Phd/Analysis/blackbuckML/CNN/bb_model_N12.h5py")
+bb_model = load_model("/media/aakanksha/f41d5ac2-703c-4b56-a960-cd3a54f21cfb/aakanksha/Documents/Backup/Phd/Analysis/blackbuckML/CNN/wasp_model.h5py")
 #Video writer object
-out = cv2.VideoWriter('/media/aakanksha/f41d5ac2-703c-4b56-a960-cd3a54f21cfb/aakanksha/Documents/Backup/Phd/Analysis/blackbuckML/CNN/output.avi',cv2.VideoWriter_fourcc('M','J','P','G'), 1, (nx,ny))
+#out = cv2.VideoWriter('/media/aakanksha/f41d5ac2-703c-4b56-a960-cd3a54f21cfb/aakanksha/Documents/Backup/Phd/Analysis/blackbuckML/CNN/Output.avi',cv2.VideoWriter_fourcc('M','J','P','G'), 1, (nx,ny))
 
 while(cap.isOpened() & (i<(nframe-steps))):
     
@@ -63,8 +63,8 @@ while(cap.isOpened() & (i<(nframe-steps))):
   params = cv2.SimpleBlobDetector_Params()
  
   # Change thresholds
-  params.minThreshold = 0;
-  params.maxThreshold = 60;
+  params.minThreshold = 30;
+  params.maxThreshold = 90;
  
   # Filter by Area.
   #params.filterByArea = False
@@ -109,6 +109,8 @@ while(cap.isOpened() & (i<(nframe-steps))):
     tmpImg1=cv2.resize(tmpImg,(40,40))
     testX[j,:,:,:]=tmpImg1
     j = j + 1
+  if not testX.any():
+      break;      
   testX = testX.reshape(-1, 40,40, 3)
   testX = testX.astype('float32')
   testX = testX / 255.   
@@ -127,12 +129,16 @@ while(cap.isOpened() & (i<(nframe-steps))):
           
       
   
-  #Display image
+#  #Display image
   im_with_keypoints = cv2.drawKeypoints(frame, keypoints, np.array([]), (0,0,255), cv2.DRAW_MATCHES_FLAGS_DRAW_RICH_KEYPOINTS)
   im_with_detections = cv2.drawKeypoints(frame, FKP, np.array([]), (0,0,255), cv2.DRAW_MATCHES_FLAGS_DRAW_RICH_KEYPOINTS)
- 
+  
+  cv2.imwrite('/media/aakanksha/f41d5ac2-703c-4b56-a960-cd3a54f21cfb/aakanksha/Documents/Backup/Phd/Analysis/blackbuckML/CNN/keypoints'+str(i)+'.png',im_with_keypoints)
+#  
+  cv2.imwrite('/media/aakanksha/f41d5ac2-703c-4b56-a960-cd3a54f21cfb/aakanksha/Documents/Backup/Phd/Analysis/blackbuckML/CNN/detections'+str(i)+'.png',im_with_detections)
+### 
   #write video  
-  out.write(im_with_detections)
+#  out.write(im_with_detections)
 #  #For testing
 #  im_with_keypoints = cv2.drawKeypoints(frame, keypoints, np.array([]), (0,0,255), cv2.DRAW_MATCHES_FLAGS_DRAW_RICH_KEYPOINTS)
 #  kcount=0
@@ -152,15 +158,13 @@ while(cap.isOpened() & (i<(nframe-steps))):
 #  cv2.imshow("Keypoints", ims)
 ##  if cv2.waitKey(1) & 0xFF == ord('q'):
 ##    break
-#  cv2.imwrite('/media/aakanksha/f41d5ac2-703c-4b56-a960-cd3a54f21cfb/aakanksha/Documents/Backup/Phd/Analysis/blackbuckML/CNN/keypoints'+'.png',im_with_keypoints)
-#  
-#  cv2.imwrite('/media/aakanksha/f41d5ac2-703c-4b56-a960-cd3a54f21cfb/aakanksha/Documents/Backup/Phd/Analysis/blackbuckML/CNN/detections'+'.png',im_with_detections)
+
 
 cap.release()
-out.release()
+#out.release()
 #cv2.destroyAllWindows()
 
 #Write output
-#df.to_csv('Output_Demo.csv', index=False)
+#df.to_csv('/media/aakanksha/f41d5ac2-703c-4b56-a960-cd3a54f21cfb/aakanksha/Documents/Backup/Phd/Analysis/NNoutput/'+movieName[len(movieName)-20:len(movieName)-4]+'.csv', index=False)
 #write output video
 
